@@ -3,6 +3,8 @@ var mysql = require('mysql');
 var dotenv = require('dotenv').config();
 var password = process.env.Password;
 
+var currentTotal = 0;
+
 var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -13,11 +15,11 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err){
     if (err) throw err;
-    console.log("Connected to MySQL");
     displayAllItems();
 });
 
 function displayAllItems() {
+    console.log("Available Stock:");
     connection.query(
         "SELECT id, product_name, price, stock_quantity FROM products", 
         function (err, results) {
@@ -43,20 +45,16 @@ function updateDatabaseStock(quantityOrdered, productIndex, currentStock) {
         ],
         function(err){
             if (err) throw err;
-            console.log('Stock Updated!');
-            // displayUpdatedStock(productIndex);
-            connection.end();
         }
     )
 } 
 
 function selectProduct(results) {
-    var currentTotal;
     inquirer.prompt([
         {
         name: "productID",
         type: "input",
-        message: "Enter the ID of the product you want to buy",
+        message: "Enter the ID number of the product you want to buy",
         validate: function (value) {
             if (isNaN(value) === false) {
                 return true;
@@ -80,7 +78,7 @@ function selectProduct(results) {
         var selectedStockAmt = selectedProductIndex.stock_quantity;
         if (selectedStockAmt >= answers.quantity){
             updateDatabaseStock(answers.quantity, answers.productID, selectedStockAmt);
-            currentTotal += selectedProductIndex.price;
+            currentTotal += parseInt(selectedProductIndex.price);
             console.log('====================');
             console.log('Cart Balance: $' + currentTotal);
             inquirer.prompt([
@@ -88,11 +86,21 @@ function selectProduct(results) {
                     name: "checkoutOrShop",
                     type: "list",
                     message: "What would you like to do now?",
-                    choices: [
-                        
-                    ]
+                    choices:
+                        [
+                        "Continue Shopping", "Checkout"
+                        ]
                 }
-            ])
+            ]).then(function(answers){
+                var res = answers.checkoutOrShop
+                if (res === "Continue Shopping"){ 
+                    displayAllItems();
+                } else if (res === "Checkout") {
+                    console.log("Your credit card has been charged $" + currentTotal);
+                    console.log("Shop with us again!");
+                    connection.end();
+                }
+            })
         } else {
             console.log('Insufficient quantity - canceling order...');
             console.log('Order canceled.');
