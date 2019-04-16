@@ -95,7 +95,7 @@ function selectProduct(results) {
                 var res = answers.checkoutOrShop
                 if (res === "Continue Shopping"){ 
                     displayAllItems();
-                } else if (res === "Checkout") {
+                } else {
                     console.log("Your credit card has been charged $" + currentTotal);
                     console.log("Shop with us again!");
                     console.log("------------------");
