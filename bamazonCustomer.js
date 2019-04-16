@@ -56,7 +56,7 @@ function selectProduct(results) {
         type: "input",
         message: "Enter the ID number of the product you want to buy",
         validate: function (value) {
-            if (isNaN(value) === false) {
+            if (isNaN(value) === false && value > 0) {
                 return true;
             }
             return false;
@@ -67,7 +67,7 @@ function selectProduct(results) {
         type: "input",
         message: "How many would you like?",
         validate: function (value) {
-            if (isNaN(value) === false) {
+            if (isNaN(value) === false && value > 0) {
                 return true;
             }
             return false;
@@ -98,6 +98,7 @@ function selectProduct(results) {
                 } else if (res === "Checkout") {
                     console.log("Your credit card has been charged $" + currentTotal);
                     console.log("Shop with us again!");
+                    console.log("------------------");
                     connection.end();
                 }
             })
